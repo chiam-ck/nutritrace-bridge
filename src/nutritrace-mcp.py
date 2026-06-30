@@ -19,6 +19,7 @@ TOOLS = [
     {"name":"nutritrace_weight_log","description":"Log weight entry","inputSchema":{"type":"object","properties":{"weight":{"type":"number"},"date":{"type":"string"},"unit":{"type":"string"},"notes":{"type":"string"}},"required":["weight"]}},
     {"name":"nutritrace_diary_get","description":"Get diary for date","inputSchema":{"type":"object","properties":{"date":{"type":"string"}},"required":["date"]}},
     {"name":"nutritrace_diary_range","description":"Get diary date range","inputSchema":{"type":"object","properties":{"from":{"type":"string"},"to":{"type":"string"}},"required":["from","to"]}},
+    {"name":"nutritrace_diary_add","description":"Add a food entry to diary for a date. Use food_name (fuzzy match) or food_id. meal=breakfast/lunch/dinner/snacks","inputSchema":{"type":"object","properties":{"date":{"type":"string"},"food_name":{"type":"string"},"food_id":{"type":"integer"},"quantity":{"type":"number"},"meal":{"type":"string","enum":["breakfast","lunch","dinner","snacks"]}},"required":["date"]}},
     {"name":"nutritrace_foods_search","description":"Search foods","inputSchema":{"type":"object","properties":{"q":{"type":"string"},"limit":{"type":"integer"}},"required":["q"]}},
     {"name":"nutritrace_foods_get","description":"Get food by ID","inputSchema":{"type":"object","properties":{"id":{"type":"integer"}},"required":["id"]}},
     {"name":"nutritrace_foods_categories","description":"List food categories","inputSchema":{"type":"object","properties":{},"required":[]}},
@@ -57,6 +58,14 @@ def call_tool(name, args):
             return call_api("GET", f"/diary/{args['date']}")
         elif name == "nutritrace_diary_range":
             return call_api("GET", f"/diary/range?from={args['from']}&to={args['to']}")
+        elif name == "nutritrace_diary_add":
+            return call_api("POST", "/diary/add", {
+                "date": args.get("date", datetime.now().strftime("%Y-%m-%d")),
+                "food_name": args.get("food_name"),
+                "food_id": args.get("food_id"),
+                "quantity": args.get("quantity", 1),
+                "meal": args.get("meal", "lunch")
+            })
         elif name == "nutritrace_foods_search":
             limit = args.get("limit", 20)
             return call_api("GET", f"/foods/search?q={quote(args['q'])}&limit={limit}")

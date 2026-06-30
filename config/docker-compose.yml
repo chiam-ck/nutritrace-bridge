@@ -24,9 +24,10 @@ services:
       - SMTP_FROM=${SMTP_FROM:-}
     restart: unless-stopped
 
-  nutritrace-api:
+  nutritrace-api-sqlite:
     image: python:3.11-alpine
-    container_name: nutritrace-api
+    container_name: nutritrace-api-sqlite
+    profiles: ["sqlite"]
     ports:
       - "3002:3002"
     volumes:
@@ -36,6 +37,24 @@ services:
       - TZ=Asia/Singapore
       - NT_DB_PATH=/data/db/nutritrace.db
     command: python3 /opt/nutritrace-api.py
+    restart: unless-stopped
+
+  nutritrace-api:
+    image: python:3.11-slim
+    container_name: nutritrace-api
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./nutritrace-api-pg.py:/opt/nutritrace-api.py:ro
+    environment:
+      - TZ=Asia/Singapore
+      - PG_HOST=${PG_HOST:?set in .env}
+      - PG_PORT=${PG_PORT:-5432}
+      - PG_DB=${PG_DB:-nutritrace}
+      - PG_USER=${PG_USER:-nutritrace}
+      - PG_PASS=${PG_PASS:?set in .env}
+    command: >
+      sh -c "pip install -q psycopg2-binary && python3 /opt/nutritrace-api.py"
     restart: unless-stopped
 
   nutritrace-mcp:
