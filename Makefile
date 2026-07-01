@@ -2,15 +2,15 @@
 
 TECH_VM = ck@100.111.123.105
 TECH_COMPOSE = docker compose -f ~/tech/docker-compose.yml
-TECH_NUTRITRACE = /home/ck/nutritrace
+TECH_DEPLOY = /home/ck/nutritrace-deploy
 
 # Full deploy: sync MCP files + restart containers
 deploy: sync api-restart mcp-restart
 
 # Sync MCP files to tech-vm (no restart)
 sync:
-	scp nutritrace-api.py $(TECH_VM):$(TECH_NUTRITRACE)/
-	scp nutritrace-mcp.py $(TECH_VM):$(TECH_NUTRITRACE)/
+	scp nutritrace-api.py $(TECH_VM):$(TECH_DEPLOY)/
+	scp nutritrace-mcp.py $(TECH_VM):$(TECH_DEPLOY)/
 	@echo "MCP files synced to tech-vm"
 
 # Restart services on tech-vm
@@ -26,8 +26,8 @@ logs:
 
 # Rebuild food database on tech-vm
 food-db:
-	scp scripts/build-sg-food-db-v2.py $(TECH_VM):$(TECH_NUTRITRACE)/
-	ssh $(TECH_VM) 'docker cp $(TECH_NUTRITRACE)/build-sg-food-db-v2.py nutritrace:/tmp/ && docker exec nutritrace python3 /tmp/build-sg-food-db-v2.py'
+	scp scripts/build-sg-food-db-v2.py $(TECH_VM):$(TECH_DEPLOY)/
+	ssh $(TECH_VM) 'docker cp $(TECH_DEPLOY)/build-sg-food-db-v2.py nutritrace:/tmp/ && docker exec nutritrace python3 /tmp/build-sg-food-db-v2.py'
 
 # Create n8n MCP webhook workflows
 n8n-webhooks:
