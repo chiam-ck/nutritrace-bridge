@@ -394,7 +394,7 @@ class APIHandler(BaseHTTPRequestHandler):
                 nutrition = body.get("nutrition", {})
                 if isinstance(nutrition, dict):
                     if "carbohydrates" in nutrition and "carbs" not in nutrition:
-                        nutrition["carbs"] = nutrition.pop("carbohydrates")
+                        nutrition["carbs"] = nutrition["carbohydrates"]  # keep both keys
                     nutrition = json.dumps(nutrition)
 
                 portion = float(body.get("portion", 100))
