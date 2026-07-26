@@ -391,12 +391,14 @@ class APIHandler(BaseHTTPRequestHandler):
                 if not name:
                     return json_response(self, {"error": "name required"}, 400)
 
+
                 nutrition = body.get("nutrition", {})
                 if isinstance(nutrition, dict):
                     if "carbohydrates" in nutrition and "carbs" not in nutrition:
                         nutrition["carbs"] = nutrition["carbohydrates"]  # keep both keys
+                    if "protein" in nutrition and "proteins" not in nutrition:
+                        nutrition["proteins"] = nutrition["protein"]  # NutriTrade web UI expects plural
                     nutrition = json.dumps(nutrition)
-
                 portion = float(body.get("portion", 100))
                 unit = str(body.get("unit", "g"))[:10]
                 category = str(body.get("category", ""))[:60] or None
@@ -663,6 +665,8 @@ def _normalize_nutrition(nutrition):
     # Canonical aliases
     if "proteins" in n and "protein" not in n:
         n["protein"] = n.pop("proteins")
+    if "protein" in n and "proteins" not in n:
+        n["proteins"] = n["protein"]  # NutriTrade web UI expects plural
     if "carbohydrates" in n and "carbs" not in n:
         n["carbs"] = n.pop("carbohydrates")
     # Also handle the reverse (carbs → carbohydrates for foods that use carbs)
