@@ -1,7 +1,10 @@
 {
   "name": "NutriTrace Activity - MCP",
-  "description": null,
-  "isArchived": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
   "nodes": [
     {
       "parameters": {
@@ -16,7 +19,9 @@
         0,
         0
       ],
-      "name": "Webhook"
+      "name": "Webhook",
+      "id": "bd7c23f0-6f23-4e35-91cc-07d579f3ccb5",
+      "webhookId": "e6a21ae1-b8c8-4b69-b8c2-8774dbfb47f4"
     },
     {
       "parameters": {
@@ -92,7 +97,7 @@
           ]
         },
         "options": {
-          "fallbackOutput": "none"
+          "fallbackOutput": "extra"
         }
       },
       "type": "n8n-nodes-base.switch",
@@ -123,35 +128,8 @@
         "url": "http://100.111.123.105:3002/activity/log",
         "options": {},
         "sendBody": true,
-        "bodyContentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "name",
-              "value": "={{$json.body.name}}"
-            },
-            {
-              "name": "date",
-              "value": "={{$json.body.date || $now.format('yyyy-MM-dd')}}"
-            },
-            {
-              "name": "kcal",
-              "value": "={{$json.body.kcal || 0}}"
-            },
-            {
-              "name": "duration_min",
-              "value": "={{$json.body.duration_min}}"
-            },
-            {
-              "name": "distance",
-              "value": "={{$json.body.distance}}"
-            },
-            {
-              "name": "source",
-              "value": "={{$json.body.source || 'manual_form'}}"
-            }
-          ]
-        }
+        "specifyBody": "json",
+        "jsonBody": "{\"name\": \"={{$json.body.name}}\", \"date\": \"={{$json.body.date}}\", \"kcal\": \"={{$json.body.kcal}}\", \"duration_min\": \"={{$json.body.duration_min}}\", \"distance\": \"={{$json.body.distance || ''}}\", \"source\": \"={{$json.body.source || 'manual_form'}}\"}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -174,6 +152,19 @@
         0
       ],
       "name": "Sum"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\"ok\": false, \"error\": \"unknown op\"}"
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        750,
+        0
+      ],
+      "name": "Unknown Op"
     }
   ],
   "connections": {
@@ -210,19 +201,16 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Unknown Op",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
   },
-  "settings": {
-    "executionOrder": "v1",
-    "availableInMCP": true,
-    "callerPolicy": "workflowsFromSameOwner",
-    "description": "Activity/exercise operations. POST body: {op, ...params}. ops: get {date} -> list activities for date; log {name, date?, kcal, duration_min?, distance?, source?} -> log a workout; sum {date} -> daily activity calorie summary (manual vs wearable, effective)."
-  },
-  "sourceWorkflowId": null,
-  "versionMetadata": {
-    "name": null,
-    "description": null
-  }
+  "id": "08f14db5-bdc7-4e4b-a35a-2dbb3f39f1e7"
 }

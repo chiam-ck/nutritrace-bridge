@@ -1,7 +1,10 @@
 {
   "name": "NutriTrace Diary - MCP",
-  "description": null,
-  "isArchived": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
   "nodes": [
     {
       "parameters": {
@@ -16,7 +19,9 @@
         0,
         0
       ],
-      "name": "Webhook"
+      "name": "Webhook",
+      "id": "c84f2614-ff0f-4e2a-830e-960dc60a4345",
+      "webhookId": "dd285fb5-12fb-4d03-b899-0171b43cf914"
     },
     {
       "parameters": {
@@ -136,7 +141,7 @@
           ]
         },
         "options": {
-          "fallbackOutput": "none"
+          "fallbackOutput": "extra"
         }
       },
       "type": "n8n-nodes-base.switch",
@@ -150,17 +155,8 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "http://100.111.123.105:3002/diary",
-        "options": {},
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "date",
-              "value": "={{$json.body.date}}"
-            }
-          ]
-        }
+        "url": "=http://100.111.123.105:3002/diary/{{$json.body.date}}",
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -176,31 +172,8 @@
         "url": "http://100.111.123.105:3002/diary/add",
         "options": {},
         "sendBody": true,
-        "bodyContentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "food_name",
-              "value": "={{$json.body.food_name}}"
-            },
-            {
-              "name": "food_id",
-              "value": "={{$json.body.food_id}}"
-            },
-            {
-              "name": "quantity",
-              "value": "={{$json.body.quantity || 1}}"
-            },
-            {
-              "name": "meal",
-              "value": "={{$json.body.meal || 'lunch'}}"
-            },
-            {
-              "name": "date",
-              "value": "={{$json.body.date || $now.format('yyyy-MM-dd')}}"
-            }
-          ]
-        }
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ date: $json.body.date, quantity: $json.body.quantity || 1, meal: $json.body.meal || 'lunch', ...($json.body.food_name ? { food_name: $json.body.food_name } : {}), ...($json.body.food_id ? { food_id: $json.body.food_id } : {}) }) }}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -216,23 +189,8 @@
         "url": "=http://100.111.123.105:3002/diary/{{$json.body.date}}",
         "options": {},
         "sendBody": true,
-        "bodyContentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "food_server_id",
-              "value": "={{$json.body.food_server_id}}"
-            },
-            {
-              "name": "quantity",
-              "value": "={{$json.body.quantity}}"
-            },
-            {
-              "name": "meal",
-              "value": "={{$json.body.meal}}"
-            }
-          ]
-        }
+        "specifyBody": "json",
+        "jsonBody": "{\"food_server_id\": \"={{$json.body.food_server_id}}\", \"quantity\": \"={{$json.body.quantity}}\", \"meal\": \"={{$json.body.meal}}\"}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -248,19 +206,8 @@
         "url": "=http://100.111.123.105:3002/diary/{{$json.body.date}}",
         "options": {},
         "sendBody": true,
-        "bodyContentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "food_server_id",
-              "value": "={{$json.body.food_server_id}}"
-            },
-            {
-              "name": "meal",
-              "value": "={{$json.body.meal}}"
-            }
-          ]
-        }
+        "specifyBody": "json",
+        "jsonBody": "{\"food_server_id\": \"={{$json.body.food_server_id}}\", \"meal\": \"={{$json.body.meal}}\"}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -296,6 +243,19 @@
         0
       ],
       "name": "Range"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\"ok\": false, \"error\": \"unknown op\"}"
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        750,
+        0
+      ],
+      "name": "Unknown Op"
     }
   ],
   "connections": {
@@ -346,19 +306,16 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Unknown Op",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
   },
-  "settings": {
-    "executionOrder": "v1",
-    "availableInMCP": true,
-    "callerPolicy": "workflowsFromSameOwner",
-    "description": "Diary operations. POST body: {op, ...params}. ops: get {date} -> full diary for date; add {food_name or food_id, quantity?, meal? breakfast|lunch|dinner|snacks, date?} -> log food; update {date, food_server_id, quantity?, meal?} -> change portion/meal; delete {date, food_server_id, meal?} -> remove item; range {from, to} -> diaries between dates. Returns diary items with nutrition."
-  },
-  "sourceWorkflowId": null,
-  "versionMetadata": {
-    "name": null,
-    "description": null
-  }
+  "id": "5024c530-31ec-4a90-8fb2-ad4a38846850"
 }

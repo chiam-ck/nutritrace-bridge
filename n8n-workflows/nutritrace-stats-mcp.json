@@ -1,7 +1,10 @@
 {
   "name": "NutriTrace Stats - MCP",
-  "description": null,
-  "isArchived": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
   "nodes": [
     {
       "parameters": {
@@ -16,7 +19,9 @@
         0,
         0
       ],
-      "name": "Webhook"
+      "name": "Webhook",
+      "id": "9ef784ad-55bf-40e1-a8ef-30b04abc9c16",
+      "webhookId": "a015f532-865d-46d8-9994-b5d84dce25f8"
     },
     {
       "parameters": {
@@ -92,7 +97,7 @@
           ]
         },
         "options": {
-          "fallbackOutput": "none"
+          "fallbackOutput": "extra"
         }
       },
       "type": "n8n-nodes-base.switch",
@@ -113,7 +118,7 @@
           "parameters": [
             {
               "name": "date",
-              "value": "={{$json.body.date || $now.format('yyyy-MM-dd')}}"
+              "value": "={{$json.body.date}}"
             }
           ]
         }
@@ -153,6 +158,19 @@
         0
       ],
       "name": "Health"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\"ok\": false, \"error\": \"unknown op\"}"
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        750,
+        0
+      ],
+      "name": "Unknown Op"
     }
   ],
   "connections": {
@@ -189,19 +207,16 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Unknown Op",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
   },
-  "settings": {
-    "executionOrder": "v1",
-    "availableInMCP": true,
-    "callerPolicy": "workflowsFromSameOwner",
-    "description": "Stats and health operations. POST body: {op, ...params}. ops: daily {date?} -> daily nutrition summary (calories, macros, activity, net); weekly {} -> 7-day averages; health {} -> API + DB health status."
-  },
-  "sourceWorkflowId": null,
-  "versionMetadata": {
-    "name": null,
-    "description": null
-  }
+  "id": "a970d6d9-ae0c-4b21-943d-c1d663004f69"
 }

@@ -1,7 +1,10 @@
 {
   "name": "NutriTrace Weight - MCP",
-  "description": null,
-  "isArchived": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
   "nodes": [
     {
       "parameters": {
@@ -16,7 +19,9 @@
         0,
         0
       ],
-      "name": "Webhook"
+      "name": "Webhook",
+      "id": "56cb3999-79a0-4d94-bae8-d6399b1114a1",
+      "webhookId": "a5316cde-e666-496a-ba01-f82358004811"
     },
     {
       "parameters": {
@@ -70,7 +75,7 @@
           ]
         },
         "options": {
-          "fallbackOutput": "none"
+          "fallbackOutput": "extra"
         }
       },
       "type": "n8n-nodes-base.switch",
@@ -87,27 +92,8 @@
         "url": "http://100.111.123.105:3002/weight/log",
         "options": {},
         "sendBody": true,
-        "bodyContentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "weight",
-              "value": "={{$json.body.weight}}"
-            },
-            {
-              "name": "date",
-              "value": "={{$json.body.date || $now.format('yyyy-MM-dd')}}"
-            },
-            {
-              "name": "unit",
-              "value": "={{$json.body.unit || 'kg'}}"
-            },
-            {
-              "name": "notes",
-              "value": "={{$json.body.notes || ''}}"
-            }
-          ]
-        }
+        "specifyBody": "json",
+        "jsonBody": "{\"weight\": \"={{$json.body.weight}}\", \"date\": \"={{$json.body.date}}\", \"unit\": \"={{$json.body.unit || 'kg'}}\", \"notes\": \"={{$json.body.notes || ''}}\"}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -130,6 +116,19 @@
         0
       ],
       "name": "History"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\"ok\": false, \"error\": \"unknown op\"}"
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        750,
+        0
+      ],
+      "name": "Unknown Op"
     }
   ],
   "connections": {
@@ -159,19 +158,16 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Unknown Op",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
   },
-  "settings": {
-    "executionOrder": "v1",
-    "availableInMCP": true,
-    "callerPolicy": "workflowsFromSameOwner",
-    "description": "Weight operations. POST body: {op, ...params}. ops: log {weight, date?, unit?, notes?} -> log weight entry; history {} -> weight history. Returns entries."
-  },
-  "sourceWorkflowId": null,
-  "versionMetadata": {
-    "name": null,
-    "description": null
-  }
+  "id": "09e6239e-3e55-4f5a-a8d9-5cc81f8ff0e9"
 }

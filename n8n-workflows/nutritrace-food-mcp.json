@@ -1,7 +1,10 @@
 {
   "name": "NutriTrace Food - MCP",
-  "description": null,
-  "isArchived": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
   "nodes": [
     {
       "parameters": {
@@ -16,7 +19,9 @@
         0,
         0
       ],
-      "name": "Webhook"
+      "name": "Webhook",
+      "id": "a6ba45a6-4ab7-46d9-9704-87d300a2f17a",
+      "webhookId": "8262203e-a150-4ee8-a931-a34a336ffb78"
     },
     {
       "parameters": {
@@ -114,7 +119,7 @@
           ]
         },
         "options": {
-          "fallbackOutput": "none"
+          "fallbackOutput": "extra"
         }
       },
       "type": "n8n-nodes-base.switch",
@@ -164,7 +169,7 @@
         500,
         0
       ],
-      "name": "Get by ID"
+      "name": "Get"
     },
     {
       "parameters": {
@@ -186,43 +191,8 @@
         "url": "http://100.111.123.105:3002/foods/add",
         "options": {},
         "sendBody": true,
-        "bodyContentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "name",
-              "value": "={{$json.body.name}}"
-            },
-            {
-              "name": "nutrition",
-              "value": "={{$json.body.nutrition}}"
-            },
-            {
-              "name": "portion",
-              "value": "={{$json.body.portion || 100}}"
-            },
-            {
-              "name": "unit",
-              "value": "={{$json.body.unit || 'g'}}"
-            },
-            {
-              "name": "category",
-              "value": "={{$json.body.category}}"
-            },
-            {
-              "name": "brand",
-              "value": "={{$json.body.brand}}"
-            },
-            {
-              "name": "notes",
-              "value": "={{$json.body.notes}}"
-            },
-            {
-              "name": "barcode",
-              "value": "={{$json.body.barcode}}"
-            }
-          ]
-        }
+        "specifyBody": "json",
+        "jsonBody": "{\"name\": \"={{$json.body.name}}\", \"nutrition\": \"={{$json.body.nutrition}}\", \"portion\": \"={{$json.body.portion || 100}}\", \"unit\": \"={{$json.body.unit || 'g'}}\", \"category\": \"={{$json.body.category || ''}}\", \"brand\": \"={{$json.body.brand || ''}}\", \"notes\": \"={{$json.body.notes || ''}}\", \"barcode\": \"={{$json.body.barcode || ''}}\"}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -231,6 +201,19 @@
         0
       ],
       "name": "Add"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\"ok\": false, \"error\": \"unknown op\"}"
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        750,
+        0
+      ],
+      "name": "Unknown Op"
     }
   ],
   "connections": {
@@ -256,7 +239,7 @@
         ],
         [
           {
-            "node": "Get by ID",
+            "node": "Get",
             "type": "main",
             "index": 0
           }
@@ -274,19 +257,16 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Unknown Op",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
   },
-  "settings": {
-    "executionOrder": "v1",
-    "availableInMCP": true,
-    "callerPolicy": "workflowsFromSameOwner",
-    "description": "Food database operations. POST body: {op, ...params}. ops: search {q, limit?} -> search foods by name/category; get {id} -> food by ID; categories {} -> list food categories; add {name, nutrition:{calories,fat,proteins,carbs,sugar,fiber}, category, portion?, unit?, brand?, notes?, barcode?} -> add new food. Returns food objects/ids."
-  },
-  "sourceWorkflowId": null,
-  "versionMetadata": {
-    "name": null,
-    "description": null
-  }
+  "id": "bc00d3cc-49f4-4f2f-b783-d0f60a2dfe93"
 }

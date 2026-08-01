@@ -138,7 +138,7 @@ def call_tool(name, args):
                 return call_api("GET", "/foods/categories")
             if op == "add":
                 return call_api("POST", "/foods/add", args)
-            return {"error": f"unknown op: {op}"}
+            return {"ok": False, "error": f"unknown op: {op}"}
 
         if name == "nutritrace_diary":
             if op == "get":
@@ -146,13 +146,16 @@ def call_tool(name, args):
             if op == "range":
                 return call_api("GET", f"/diary/range?from={args['from']}&to={args['to']}")
             if op == "add":
-                return call_api("POST", "/diary/add", {
+                body = {
                     "date": args.get("date", _TODAY()),
-                    "food_name": args.get("food_name"),
-                    "food_id": args.get("food_id"),
                     "quantity": args.get("quantity", 1),
                     "meal": args.get("meal", "lunch"),
-                })
+                }
+                if args.get("food_name"):
+                    body["food_name"] = args["food_name"]
+                if args.get("food_id"):
+                    body["food_id"] = args["food_id"]
+                return call_api("POST", "/diary/add", body)
             if op == "delete":
                 body = {"food_server_id": args["food_server_id"]}
                 if "meal" in args:
@@ -165,7 +168,7 @@ def call_tool(name, args):
                 if "meal" in args:
                     body["meal"] = args["meal"]
                 return call_api("PATCH", f"/diary/{args['date']}", body)
-            return {"error": f"unknown op: {op}"}
+            return {"ok": False, "error": f"unknown op: {op}"}
 
         if name == "nutritrace_weight":
             if op == "log":
@@ -177,7 +180,7 @@ def call_tool(name, args):
                 })
             if op == "history":
                 return call_api("GET", "/weight/history")
-            return {"error": f"unknown op: {op}"}
+            return {"ok": False, "error": f"unknown op: {op}"}
 
         if name == "nutritrace_stats":
             if op == "daily":
@@ -186,7 +189,7 @@ def call_tool(name, args):
                 return call_api("GET", "/stats/weekly")
             if op == "health":
                 return call_api("GET", "/health")
-            return {"error": f"unknown op: {op}"}
+            return {"ok": False, "error": f"unknown op: {op}"}
 
         if name == "nutritrace_activity":
             if op == "get":
@@ -202,7 +205,7 @@ def call_tool(name, args):
                     "distance": args.get("distance", ""),
                     "source": args.get("source", "manual_form"),
                 })
-            return {"error": f"unknown op: {op}"}
+            return {"ok": False, "error": f"unknown op: {op}"}
 
         return {"error": f"Unknown tool: {name}"}
     except Exception as e:
