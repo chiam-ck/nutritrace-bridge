@@ -1,0 +1,292 @@
+{
+  "name": "NutriTrace Food - MCP",
+  "description": null,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nutritrace-food",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "search",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "search"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "get",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "get"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "categories",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "categories"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "add",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "add"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        250,
+        0
+      ],
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://100.111.123.105:3002/foods/search",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{$json.body.q}}"
+            },
+            {
+              "name": "limit",
+              "value": "={{$json.body.limit || '10'}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Search"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://100.111.123.105:3002/foods/{{$json.body.id}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Get by ID"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://100.111.123.105:3002/foods/categories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Categories"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://100.111.123.105:3002/foods/add",
+        "options": {},
+        "sendBody": true,
+        "bodyContentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{$json.body.name}}"
+            },
+            {
+              "name": "nutrition",
+              "value": "={{$json.body.nutrition}}"
+            },
+            {
+              "name": "portion",
+              "value": "={{$json.body.portion || 100}}"
+            },
+            {
+              "name": "unit",
+              "value": "={{$json.body.unit || 'g'}}"
+            },
+            {
+              "name": "category",
+              "value": "={{$json.body.category}}"
+            },
+            {
+              "name": "brand",
+              "value": "={{$json.body.brand}}"
+            },
+            {
+              "name": "notes",
+              "value": "={{$json.body.notes}}"
+            },
+            {
+              "name": "barcode",
+              "value": "={{$json.body.barcode}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Add"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get by ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Categories",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "description": "Food database operations. POST body: {op, ...params}. ops: search {q, limit?} -> search foods by name/category; get {id} -> food by ID; categories {} -> list food categories; add {name, nutrition:{calories,fat,proteins,carbs,sugar,fiber}, category, portion?, unit?, brand?, notes?, barcode?} -> add new food. Returns food objects/ids."
+  },
+  "sourceWorkflowId": null,
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

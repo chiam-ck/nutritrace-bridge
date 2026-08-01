@@ -1,0 +1,207 @@
+{
+  "name": "NutriTrace Stats - MCP",
+  "description": null,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nutritrace-stats",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "daily",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "daily"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "weekly",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "weekly"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "health",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "health"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        250,
+        0
+      ],
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://100.111.123.105:3002/stats/daily",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "date",
+              "value": "={{$json.body.date || $now.format('yyyy-MM-dd')}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Daily"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://100.111.123.105:3002/stats/weekly",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Weekly"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://100.111.123.105:3002/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Health"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Daily",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Weekly",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "description": "Stats and health operations. POST body: {op, ...params}. ops: daily {date?} -> daily nutrition summary (calories, macros, activity, net); weekly {} -> 7-day averages; health {} -> API + DB health status."
+  },
+  "sourceWorkflowId": null,
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

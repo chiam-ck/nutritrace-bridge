@@ -1,0 +1,177 @@
+{
+  "name": "NutriTrace Weight - MCP",
+  "description": null,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nutritrace-weight",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "log",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "log"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "history",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "history"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        250,
+        0
+      ],
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://100.111.123.105:3002/weight/log",
+        "options": {},
+        "sendBody": true,
+        "bodyContentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "weight",
+              "value": "={{$json.body.weight}}"
+            },
+            {
+              "name": "date",
+              "value": "={{$json.body.date || $now.format('yyyy-MM-dd')}}"
+            },
+            {
+              "name": "unit",
+              "value": "={{$json.body.unit || 'kg'}}"
+            },
+            {
+              "name": "notes",
+              "value": "={{$json.body.notes || ''}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Log"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://100.111.123.105:3002/weight/history",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "History"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "description": "Weight operations. POST body: {op, ...params}. ops: log {weight, date?, unit?, notes?} -> log weight entry; history {} -> weight history. Returns entries."
+  },
+  "sourceWorkflowId": null,
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

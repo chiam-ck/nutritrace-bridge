@@ -1,0 +1,364 @@
+{
+  "name": "NutriTrace Diary - MCP",
+  "description": null,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nutritrace-diary",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "get",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "get"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "add",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "add"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "update"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "delete",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "delete"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "range",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "range"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        250,
+        0
+      ],
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://100.111.123.105:3002/diary",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "date",
+              "value": "={{$json.body.date}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Get"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://100.111.123.105:3002/diary/add",
+        "options": {},
+        "sendBody": true,
+        "bodyContentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "food_name",
+              "value": "={{$json.body.food_name}}"
+            },
+            {
+              "name": "food_id",
+              "value": "={{$json.body.food_id}}"
+            },
+            {
+              "name": "quantity",
+              "value": "={{$json.body.quantity || 1}}"
+            },
+            {
+              "name": "meal",
+              "value": "={{$json.body.meal || 'lunch'}}"
+            },
+            {
+              "name": "date",
+              "value": "={{$json.body.date || $now.format('yyyy-MM-dd')}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Add"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://100.111.123.105:3002/diary/{{$json.body.date}}",
+        "options": {},
+        "sendBody": true,
+        "bodyContentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "food_server_id",
+              "value": "={{$json.body.food_server_id}}"
+            },
+            {
+              "name": "quantity",
+              "value": "={{$json.body.quantity}}"
+            },
+            {
+              "name": "meal",
+              "value": "={{$json.body.meal}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Update"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=http://100.111.123.105:3002/diary/{{$json.body.date}}",
+        "options": {},
+        "sendBody": true,
+        "bodyContentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "food_server_id",
+              "value": "={{$json.body.food_server_id}}"
+            },
+            {
+              "name": "meal",
+              "value": "={{$json.body.meal}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Delete"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://100.111.123.105:3002/diary/range",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "={{$json.body.from}}"
+            },
+            {
+              "name": "to",
+              "value": "={{$json.body.to}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Range"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Range",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "description": "Diary operations. POST body: {op, ...params}. ops: get {date} -> full diary for date; add {food_name or food_id, quantity?, meal? breakfast|lunch|dinner|snacks, date?} -> log food; update {date, food_server_id, quantity?, meal?} -> change portion/meal; delete {date, food_server_id, meal?} -> remove item; range {from, to} -> diaries between dates. Returns diary items with nutrition."
+  },
+  "sourceWorkflowId": null,
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

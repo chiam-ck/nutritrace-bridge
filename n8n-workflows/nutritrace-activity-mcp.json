@@ -1,0 +1,228 @@
+{
+  "name": "NutriTrace Activity - MCP",
+  "description": null,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nutritrace-activity",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "get",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "get"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "log",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "log"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.op }}",
+                    "rightValue": "sum",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": false,
+              "outputKey": "sum"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        250,
+        0
+      ],
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://100.111.123.105:3002/activity/{{$json.body.date}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Get"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://100.111.123.105:3002/activity/log",
+        "options": {},
+        "sendBody": true,
+        "bodyContentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{$json.body.name}}"
+            },
+            {
+              "name": "date",
+              "value": "={{$json.body.date || $now.format('yyyy-MM-dd')}}"
+            },
+            {
+              "name": "kcal",
+              "value": "={{$json.body.kcal || 0}}"
+            },
+            {
+              "name": "duration_min",
+              "value": "={{$json.body.duration_min}}"
+            },
+            {
+              "name": "distance",
+              "value": "={{$json.body.distance}}"
+            },
+            {
+              "name": "source",
+              "value": "={{$json.body.source || 'manual_form'}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Log"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://100.111.123.105:3002/activity/sum/{{$json.body.date}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        500,
+        0
+      ],
+      "name": "Sum"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sum",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "description": "Activity/exercise operations. POST body: {op, ...params}. ops: get {date} -> list activities for date; log {name, date?, kcal, duration_min?, distance?, source?} -> log a workout; sum {date} -> daily activity calorie summary (manual vs wearable, effective)."
+  },
+  "sourceWorkflowId": null,
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

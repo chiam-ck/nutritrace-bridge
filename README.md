@@ -26,18 +26,18 @@ Single host, shared SQLite, zero pip dependencies:
 └── nutritrace.db                                      718 foods
 ```
 
-14 n8n webhook workflows provide MCP access for Claude via the same pattern used by existing Strava and Scribble Wiki integrations.
+5 n8n webhook workflows (consolidated from 17, Aug 2026) provide MCP access for Claude via the same pattern used by existing Strava and Scribble Wiki integrations. Each routes on an `op` field via a Switch V3 node, mirroring the native MCP server's 5 category tools.
 
 ## Project Structure
 
 ```
 ├── src/
 │   ├── nutritrace-api.py        REST server (stdlib, 613 lines)
-│   └── nutritrace-mcp.py        MCP JSON-RPC server (stdlib, 168 lines)
+│   └── nutritrace-mcp.py        MCP JSON-RPC server (stdlib, 5 category tools)
 ├── scripts/
 │   ├── build-sg-food-db-v2.py   SG food database builder
-│   └── create-nutritrace-n8n.py n8n MCP webhook factory
-├── n8n-workflows/               14 exportable workflow JSONs
+│   └── create-nutritrace-n8n.py n8n MCP webhook factory (5 consolidated workflows)
+├── n8n-workflows/               5 exportable workflow JSONs (op-routed)
 ├── config/
 │   ├── docker-compose.yml
 │   └── .env.example
@@ -83,29 +83,15 @@ python3 scripts/create-nutritrace-n8n.py
 
 ## n8n MCP Webhooks
 
-14 workflows exported in `n8n-workflows/`. Import into n8n, enable `availableInMCP`, done.
+5 consolidated workflows exported in `n8n-workflows/` (Aug 2026). Import into n8n, enable `availableInMCP`, done. All are **POST** with a JSON body `{"op": "...", ...params}`; each routes on `op` via a Switch V3 node straight to the REST API.
 
-### REST-backed (hits nutritrace-api:3002)
-| Webhook | Method | What |
-|---|---|---|
-| `nutritrace-search-foods` | GET | Search food database |
-| `nutritrace-weight-history` | GET | Weight timeline |
-| `nutritrace-daily-stats` | GET | Daily calorie/macro summary |
-| `nutritrace-weekly-stats` | GET | 7-day stats with averages |
-| `nutritrace-food-categories` | GET | All 37 categories |
-| `nutritrace-diary-get` | GET | Full diary entry |
-| `nutritrace-food-by-id` | GET | Single food by ID |
-| `nutritrace-diary-add` | POST | Add food to diary |
-| `nutritrace-weight-log` | POST | Log a weight entry |
-
-### MCP-backed (JSON-RPC to nutritrace-mcp:3003)
-| Webhook | Method | What |
-|---|---|---|
-| `nutritrace-health` | GET | API health check |
-| `nutritrace-diary-range` | GET | Diary date range |
-| `nutritrace-activity-get` | GET | Activities for a date |
-| `nutritrace-activity-sum` | GET | Activity calorie summary |
-| `nutritrace-activity-log` | POST | Log a manual activity |
+| Webhook | ops |
+|---|---|
+| `nutritrace-food` | search, get, categories, add |
+| `nutritrace-diary` | get, add, update, delete, range |
+| `nutritrace-weight` | log, history |
+| `nutritrace-stats` | daily, weekly, health |
+| `nutritrace-activity` | get, log, sum |
 
 ## Food Database
 
