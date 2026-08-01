@@ -1,6 +1,6 @@
 # NutriBridge
 
-REST API + MCP server + n8n webhooks that let AI agents (OpenClaw, Hermes Agent, Claude) read and write nutrition data from a self-hosted [NutriTrace](https://github.com/TraceApps/nutritrace) instance.
+REST API + MCP server + n8n webhooks that let AI agents (Hermes Agent via native MCP, Claude via n8n MCP webhooks) read and write nutrition data from a self-hosted [NutriTrace](https://github.com/TraceApps/nutritrace) instance.
 
 ## What It Does
 
@@ -9,10 +9,10 @@ NutriTrace is a single-container nutrition tracker (Svelte + Express + SQLite). 
 ```
 NutriTrace (:3000) ── SQLite ── NutriBridge (:3002 / :3003)
                                       │
-              ┌───────────────────────┼──────────────────────┐
-              │                       │                      │
-          OpenClaw              Hermes Agent              Claude
-        (direct HTTP)          (native MCP)         (n8n MCP webhooks)
+                      ┌───────────────┴───────────────┐
+                      │                               │
+               Hermes Agent                       Claude
+               (native MCP)                  (n8n MCP webhooks)
 ```
 
 ## Architecture
