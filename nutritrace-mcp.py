@@ -251,7 +251,7 @@ class MCPHandler(BaseHTTPRequestHandler):
                 result = {
                     "protocolVersion": "2024-11-05",
                     "capabilities": {"tools": {}},
-                    "serverInfo": {"name": "nutritrace-mcp", "version": "2.0.0"}
+                    "serverInfo": {"name": "nutritrace-mcp", "version": "2.1.0"}
                 }
             elif method == "tools/list":
                 result = {"tools": TOOLS}
