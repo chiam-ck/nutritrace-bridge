@@ -87,7 +87,7 @@ python3 scripts/create-nutritrace-n8n.py
 
 | Webhook | ops |
 |---|---|
-| `nutritrace-food` | search, get, categories, add |
+| `nutritrace-food` | search, get, categories, add, update, delete |
 | `nutritrace-diary` | get, add, update, delete, range |
 | `nutritrace-weight` | log, history |
 | `nutritrace-stats` | daily, weekly, health |

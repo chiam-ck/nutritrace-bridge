@@ -1,272 +1,460 @@
-{
-  "name": "NutriTrace Food - MCP",
-  "settings": {
-    "executionOrder": "v1",
-    "availableInMCP": true,
-    "callerPolicy": "workflowsFromSameOwner"
-  },
-  "nodes": [
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "nutritrace-food",
-        "responseMode": "lastNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        0,
-        0
-      ],
-      "name": "Webhook",
-      "id": "a6ba45a6-4ab7-46d9-9704-87d300a2f17a",
-      "webhookId": "8262203e-a150-4ee8-a931-a34a336ffb78"
-    },
-    {
-      "parameters": {
-        "mode": "rules",
-        "rules": {
-          "values": [
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict"
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.body.op }}",
-                    "rightValue": "search",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": false,
-              "outputKey": "search"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict"
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.body.op }}",
-                    "rightValue": "get",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": false,
-              "outputKey": "get"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict"
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.body.op }}",
-                    "rightValue": "categories",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": false,
-              "outputKey": "categories"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict"
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.body.op }}",
-                    "rightValue": "add",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": false,
-              "outputKey": "add"
-            }
-          ]
+[
+  {
+    "updatedAt": "2026-08-01T05:15:12.414Z",
+    "createdAt": "2026-08-01T05:15:12.414Z",
+    "id": "bc00d3cc-49f4-4f2f-b783-d0f60a2dfe93",
+    "name": "NutriTrace Food - MCP",
+    "description": null,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "nutritrace-food",
+          "responseMode": "lastNode",
+          "options": {}
         },
-        "options": {
-          "fallbackOutput": "extra"
-        }
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "name": "Webhook",
+        "id": "a6ba45a6-4ab7-46d9-9704-87d300a2f17a",
+        "webhookId": "8262203e-a150-4ee8-a931-a34a336ffb78"
       },
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.4,
-      "position": [
-        250,
-        0
-      ],
-      "name": "Switch"
-    },
-    {
-      "parameters": {
-        "method": "GET",
-        "url": "http://100.111.123.105:3002/foods/search",
-        "options": {},
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
+      {
+        "parameters": {
+          "mode": "rules",
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict"
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.op }}",
+                      "rightValue": "search",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": false,
+                "outputKey": "search"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict"
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.op }}",
+                      "rightValue": "get",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": false,
+                "outputKey": "get"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict"
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.op }}",
+                      "rightValue": "categories",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": false,
+                "outputKey": "categories"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict"
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.op }}",
+                      "rightValue": "add",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": false,
+                "outputKey": "add"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict"
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.op }}",
+                      "rightValue": "update",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": false,
+                "outputKey": "update"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict"
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.op }}",
+                      "rightValue": "delete",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": false,
+                "outputKey": "delete"
+              }
+            ]
+          },
+          "options": {
+            "fallbackOutput": "extra"
+          }
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          250,
+          0
+        ],
+        "name": "Switch",
+        "id": "1a216770-2f8f-4fbe-ab27-9494c18b1f22"
+      },
+      {
+        "parameters": {
+          "method": "GET",
+          "url": "http://100.111.123.105:3002/foods/search",
+          "options": {},
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "={{$json.body.q}}"
+              },
+              {
+                "name": "limit",
+                "value": "={{$json.body.limit || '10'}}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          500,
+          0
+        ],
+        "name": "Search",
+        "id": "03b21297-8910-48cf-a432-6ac9668398b9"
+      },
+      {
+        "parameters": {
+          "method": "GET",
+          "url": "=http://100.111.123.105:3002/foods/{{$json.body.id}}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          500,
+          0
+        ],
+        "name": "Get",
+        "id": "085b613a-b517-4295-aaa4-e6a64d8e8c24"
+      },
+      {
+        "parameters": {
+          "method": "GET",
+          "url": "http://100.111.123.105:3002/foods/categories",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          500,
+          0
+        ],
+        "name": "Categories",
+        "id": "b9ef0e46-5a0e-4ea7-94d7-90d6eb817393"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://100.111.123.105:3002/foods/add",
+          "options": {},
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json }}"
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          500,
+          0
+        ],
+        "name": "Add",
+        "id": "bedd6360-5841-4b43-b1ca-d1320e1503f1"
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "{\"ok\": false, \"error\": \"unknown op\"}"
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.3,
+        "position": [
+          750,
+          0
+        ],
+        "name": "Unknown Op",
+        "id": "01fb15a6-de6c-486f-9132-7350d6750831"
+      },
+      {
+        "parameters": {
+          "jsCode": "const b = $input.first().json.body;\nreturn [{\n  json: {\n    name: b.name,\n    nutrition: b.nutrition,\n    portion: b.portion || 100,\n    unit: b.unit || 'g',\n    category: b.category || '',\n    brand: b.brand || '',\n    notes: b.notes || '',\n    barcode: b.barcode || ''\n  }\n}];",
+          "language": "javaScript",
+          "mode": "runOnceForAllItems"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          300,
+          1200
+        ],
+        "id": "0b96b4ad-5fb7-46d6-a965-39bb61454cc2",
+        "name": "Add Body"
+      },
+      {
+        "parameters": {
+          "jsCode": "const b = $input.first().json.body;\nconst out = { id: b.id };\nfor (const k of ['name','category','portion','unit','brand','notes','barcode','nutrition']) {\n  if (b[k] !== undefined && b[k] !== null && b[k] !== '') out[k] = b[k];\n}\nreturn [{ json: out }];",
+          "language": "javaScript",
+          "mode": "runOnceForAllItems"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          300,
+          1800
+        ],
+        "id": "bf5b7063-c182-47be-a30f-db798ff33ad8",
+        "name": "Update Body"
+      },
+      {
+        "parameters": {
+          "method": "PATCH",
+          "url": "=http://100.111.123.105:3002/foods/{{$json.id}}",
+          "options": {},
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json }}"
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          600,
+          1800
+        ],
+        "id": "aa29aed5-b15c-4702-a592-d7d54d1cf2cd",
+        "name": "Update"
+      },
+      {
+        "parameters": {
+          "method": "DELETE",
+          "url": "=http://100.111.123.105:3002/foods/{{$json.body.id}}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          900,
+          1800
+        ],
+        "id": "1949a881-fd12-4c7e-a571-e808136c206c",
+        "name": "Delete"
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
             {
-              "name": "q",
-              "value": "={{$json.body.q}}"
-            },
-            {
-              "name": "limit",
-              "value": "={{$json.body.limit || '10'}}"
+              "node": "Switch",
+              "type": "main",
+              "index": 0
             }
           ]
+        ]
+      },
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Search",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Get",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Categories",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Add Body",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Update Body",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Delete",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Unknown Op",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add Body": {
+        "main": [
+          [
+            {
+              "node": "Add",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Body": {
+        "main": [
+          [
+            {
+              "node": "Update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "availableInMCP": true,
+      "callerPolicy": "workflowsFromSameOwner"
+    },
+    "staticData": null,
+    "meta": null,
+    "nodeGroups": [],
+    "pinData": null,
+    "versionId": "c8bf9cef-8122-455a-bf08-605032807634",
+    "versionCounter": 2,
+    "triggerCount": 1,
+    "sourceWorkflowId": null,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-08-01T05:15:12.414Z",
+        "createdAt": "2026-08-01T05:15:12.414Z",
+        "role": "workflow:owner",
+        "workflowId": "bc00d3cc-49f4-4f2f-b783-d0f60a2dfe93",
+        "projectId": "LExf25TmLJNwbA8w",
+        "project": {
+          "updatedAt": "2026-03-20T03:26:59.983Z",
+          "createdAt": "2026-03-19T05:47:10.249Z",
+          "id": "LExf25TmLJNwbA8w",
+          "name": "Ck Chiam <cheekong.chiam@gmail.com>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "customTelemetryTags": [],
+          "creatorId": "3c4103eb-07a0-4cbb-afed-1afda385b2ca"
         }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        500,
-        0
-      ],
-      "name": "Search"
-    },
-    {
-      "parameters": {
-        "method": "GET",
-        "url": "=http://100.111.123.105:3002/foods/{{$json.body.id}}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        500,
-        0
-      ],
-      "name": "Get"
-    },
-    {
-      "parameters": {
-        "method": "GET",
-        "url": "http://100.111.123.105:3002/foods/categories",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        500,
-        0
-      ],
-      "name": "Categories"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://100.111.123.105:3002/foods/add",
-        "options": {},
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "{\"name\": \"={{$json.body.name}}\", \"nutrition\": \"={{$json.body.nutrition}}\", \"portion\": \"={{$json.body.portion || 100}}\", \"unit\": \"={{$json.body.unit || 'g'}}\", \"category\": \"={{$json.body.category || ''}}\", \"brand\": \"={{$json.body.brand || ''}}\", \"notes\": \"={{$json.body.notes || ''}}\", \"barcode\": \"={{$json.body.barcode || ''}}\"}"
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        500,
-        0
-      ],
-      "name": "Add"
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "{\"ok\": false, \"error\": \"unknown op\"}"
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.3,
-      "position": [
-        750,
-        0
-      ],
-      "name": "Unknown Op"
+      }
+    ],
+    "versionMetadata": {
+      "name": null,
+      "description": null
     }
-  ],
-  "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Switch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Switch": {
-      "main": [
-        [
-          {
-            "node": "Search",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Get",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Categories",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Add",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Unknown Op",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  },
-  "id": "bc00d3cc-49f4-4f2f-b783-d0f60a2dfe93"
-}
+  }
+]

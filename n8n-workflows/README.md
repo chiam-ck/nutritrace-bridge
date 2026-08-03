@@ -17,7 +17,7 @@ All are **POST** to the webhook path with a JSON body `{"op": "...", ...params}`
 
 | File | Webhook path | ops |
 |:---|:---|:---|
-| `nutritrace-food-mcp.json` | `/webhook/nutritrace-food` | search, get, categories, add |
+| `nutritrace-food-mcp.json` | `/webhook/nutritrace-food` | search, get, categories, add, update, delete |
 | `nutritrace-diary-mcp.json` | `/webhook/nutritrace-diary` | get, add, update, delete, range |
 | `nutritrace-weight-mcp.json` | `/webhook/nutritrace-weight` | log, history |
 | `nutritrace-stats-mcp.json` | `/webhook/nutritrace-stats` | daily, weekly, health |

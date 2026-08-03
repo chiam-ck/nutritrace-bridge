@@ -16,6 +16,8 @@ Endpoints:
   GET  /stats/weekly            — last 7 days aggregate
   DELETE /diary/:date          — remove item (body: {food_server_id, meal?})
   PATCH  /diary/:date          — update item (body: {food_server_id, quantity?, meal?})
+  PATCH  /foods/:id            — update food (body: {name?, brand?, category?, portion?, unit?, notes?, barcode?, nutrition?})
+  DELETE /foods/:id            — soft-delete food (sets deleted_at)
 """
 
 import sqlite3
@@ -491,6 +493,25 @@ class APIHandler(BaseHTTPRequestHandler):
         path = parsed.path.rstrip("/")
 
         try:
+            if path.startswith("/foods/"):
+                fid = int(path.split("/foods/")[1])
+                db = get_db()
+                row = db.execute(
+                    "SELECT * FROM foods WHERE user_id=1 AND id=? AND deleted_at IS NULL",
+                    (fid,)
+                ).fetchone()
+                if not row:
+                    db.close()
+                    return json_response(self, {"error": "not found"}, 404)
+                now = datetime.now().isoformat()
+                db.execute(
+                    "UPDATE foods SET deleted_at=?, updated_at=? WHERE id=?",
+                    (now, now, fid)
+                )
+                db.commit()
+                db.close()
+                return json_response(self, {"ok": True, "id": fid, "deleted": True, "soft_delete": True})
+
             if path.startswith("/diary/"):
                 date_str = path.split("/diary/")[1]
                 body = parse_body(self)
@@ -551,6 +572,60 @@ class APIHandler(BaseHTTPRequestHandler):
         path = parsed.path.rstrip("/")
 
         try:
+            if path.startswith("/foods/"):
+                fid = int(path.split("/foods/")[1])
+                body = parse_body(self)
+                if not body:
+                    return json_response(self, {"error": "no fields to update"}, 400)
+
+                db = get_db()
+                row = db.execute(
+                    "SELECT * FROM foods WHERE user_id=1 AND id=? AND deleted_at IS NULL",
+                    (fid,)
+                ).fetchone()
+                if not row:
+                    db.close()
+                    return json_response(self, {"error": "not found"}, 404)
+
+                sets = []
+                vals = []
+                for field in ("name", "brand", "category", "portion", "unit", "notes", "barcode"):
+                    if field in body and body[field] is not None and body[field] != "":
+                        sets.append(f"{field}=?")
+                        vals.append(body[field])
+                if "nutrition" in body and isinstance(body["nutrition"], dict):
+                    nutrition = body["nutrition"]
+                    if "carbohydrates" in nutrition and "carbs" not in nutrition:
+                        nutrition["carbs"] = nutrition["carbohydrates"]
+                    if "protein" in nutrition and "proteins" not in nutrition:
+                        nutrition["proteins"] = nutrition["protein"]
+                    sets.append("nutrition=?")
+                    vals.append(json.dumps(nutrition))
+                elif "nutrition" in body and isinstance(body["nutrition"], str) and body["nutrition"].strip():
+                    try:
+                        nutrition = json.loads(body["nutrition"])
+                        if isinstance(nutrition, dict):
+                            sets.append("nutrition=?")
+                            vals.append(json.dumps(nutrition))
+                    except (ValueError, TypeError):
+                        pass
+
+                if not sets:
+                    db.close()
+                    return json_response(self, {"error": "no valid fields to update"}, 400)
+
+                now = datetime.now().isoformat()
+                sets.append("updated_at=?")
+                vals.append(now)
+                vals.append(fid)
+                db.execute(f"UPDATE foods SET {', '.join(sets)} WHERE id=?", vals)
+                db.commit()
+                updated = db.execute(
+                    "SELECT * FROM foods WHERE id=?", (fid,)
+                ).fetchone()
+                db.close()
+                return json_response(self, {"ok": True, "food": _parse_food_row(updated)})
+
             if path.startswith("/diary/"):
                 date_str = path.split("/diary/")[1]
                 body = parse_body(self)

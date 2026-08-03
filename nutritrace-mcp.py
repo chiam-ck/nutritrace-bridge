@@ -29,11 +29,11 @@ def _op_enum(*ops):
 TOOLS = [
     {
         "name": "nutritrace_food",
-        "description": "Food database operations. Pass op: search {q, limit?} searches foods by name/category; get {id} returns food by ID; categories {} lists food categories; add {name, nutrition:{calories,fat,proteins,carbs,sugar,fiber}, category, portion?, unit?, brand?, notes?, barcode?} adds a new food and returns its id.",
+        "description": "Food database operations. Pass op: search {q, limit?} searches foods by name/category; get {id} returns food by ID; categories {} lists food categories; add {name, nutrition:{calories,fat,proteins,carbs,sugar,fiber}, category, portion?, unit?, brand?, notes?, barcode?} adds a new food and returns its id; update {id, name?, category?, portion?, unit?, brand?, notes?, nutrition?} edits an existing food; delete {id} soft-deletes a food (sets deleted_at, diary history untouched).",
         "inputSchema": {
             "type": "object",
             "properties": {
-                "op": _op_enum("search", "get", "categories", "add"),
+                "op": _op_enum("search", "get", "categories", "add", "update", "delete"),
                 "q": {"type": "string"},
                 "limit": {"type": "integer"},
                 "id": {"type": "integer"},
@@ -138,6 +138,11 @@ def call_tool(name, args):
                 return call_api("GET", "/foods/categories")
             if op == "add":
                 return call_api("POST", "/foods/add", args)
+            if op == "update":
+                body = {k: args[k] for k in ("name", "category", "portion", "unit", "brand", "notes", "barcode", "nutrition") if k in args and args[k] is not None}
+                return call_api("PATCH", f"/foods/{args['id']}", body)
+            if op == "delete":
+                return call_api("DELETE", f"/foods/{args['id']}")
             return {"ok": False, "error": f"unknown op: {op}"}
 
         if name == "nutritrace_diary":
