@@ -14,8 +14,8 @@ Endpoints:
   GET  /foods/:id               — single food by id
   GET  /stats/daily?date=       — daily nutrition summary
   GET  /stats/weekly            — last 7 days aggregate
-  DELETE /diary/:date          — remove item (body: {food_server_id, meal?})
-  PATCH  /diary/:date          — update item (body: {food_server_id, quantity?, meal?})
+  DELETE /diary/:date          — remove item (body: {food_server_id, meal?} — meal accepts text or numeric 0-3)
+  PATCH  /diary/:date          — update item (body: {food_server_id, quantity?, meal?} — meal accepts text or numeric 0-3)
   PATCH  /foods/:id            — update food (body: {name?, brand?, category?, portion?, unit?, notes?, barcode?, nutrition?})
   DELETE /foods/:id            — soft-delete food (sets deleted_at)
 """
@@ -54,6 +54,21 @@ def parse_body(handler):
     if length == 0:
         return {}
     return json.loads(handler.rfile.read(length))
+
+
+def _meal_int(meal):
+    """Normalize a meal to numeric 0-3. Accepts int, numeric string, or text name."""
+    if meal is None:
+        return None
+    if isinstance(meal, bool):
+        raise ValueError(f"invalid meal: {meal!r}")
+    if isinstance(meal, int):
+        return meal
+    s = str(meal).strip().lower()
+    mapping = {"breakfast": 0, "lunch": 1, "dinner": 2, "snacks": 3}
+    if s in mapping:
+        return mapping[s]
+    raise ValueError(f"invalid meal: {meal!r}")
 
 
 class APIHandler(BaseHTTPRequestHandler):
@@ -536,9 +551,14 @@ class APIHandler(BaseHTTPRequestHandler):
                 removed = []
 
                 if meal is not None:
+                    try:
+                        meal_i = _meal_int(meal)
+                    except ValueError as e:
+                        db.close()
+                        return json_response(self, {"error": str(e)}, 400)
                     new_items = []
                     for it in items:
-                        if it.get("food_server_id") == int(food_id) and it.get("meal") == int(meal):
+                        if it.get("food_server_id") == int(food_id) and it.get("meal") == meal_i:
                             removed.append({"name": it.get("name"), "food_server_id": it.get("food_server_id"), "meal": it.get("meal")})
                         else:
                             new_items.append(it)
@@ -637,6 +657,11 @@ class APIHandler(BaseHTTPRequestHandler):
                     return json_response(self, {"error": "food_server_id required"}, 400)
                 if quantity is None and meal is None:
                     return json_response(self, {"error": "quantity or meal required"}, 400)
+                if meal is not None:
+                    try:
+                        meal_i = _meal_int(meal)
+                    except ValueError as e:
+                        return json_response(self, {"error": str(e)}, 400)
 
                 db = get_db()
                 row = db.execute(
@@ -659,7 +684,7 @@ class APIHandler(BaseHTTPRequestHandler):
                         if quantity is not None:
                             it["quantity"] = float(quantity)
                         if meal is not None:
-                            it["meal"] = int(meal)
+                            it["meal"] = meal_i
                         found = True
                         updated = {
                             "name": it.get("name"),

@@ -51,7 +51,7 @@ TOOLS = [
     },
     {
         "name": "nutritrace_diary",
-        "description": "Diary operations. Pass op: get {date} returns full diary for date; add {date?, food_name or food_id, quantity?, meal? breakfast|lunch|dinner|snacks} logs food; update {date, food_server_id, quantity?, meal?} changes portion/meal (meal numeric 0-3); delete {date, food_server_id, meal?} removes item; range {from, to} returns diaries between dates.",
+        "description": "Diary operations. Pass op: get {date} returns full diary for date; add {date?, food_name or food_id, quantity?, meal? breakfast|lunch|dinner|snacks} logs food; update {date, food_server_id, quantity?, meal?} changes portion/meal (meal text or numeric 0-3); delete {date, food_server_id, meal?} removes item (meal text or numeric 0-3; omit meal to delete every item with that food_server_id); range {from, to} returns diaries between dates.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -251,7 +251,7 @@ class MCPHandler(BaseHTTPRequestHandler):
                 result = {
                     "protocolVersion": "2024-11-05",
                     "capabilities": {"tools": {}},
-                    "serverInfo": {"name": "nutritrace-mcp", "version": "2.1.0"}
+                    "serverInfo": {"name": "nutritrace-mcp", "version": "2.1.1"}
                 }
             elif method == "tools/list":
                 result = {"tools": TOOLS}
