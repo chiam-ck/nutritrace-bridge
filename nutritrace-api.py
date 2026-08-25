@@ -22,6 +22,7 @@ Endpoints:
 
 import sqlite3
 import json
+import uuid
 import os
 import sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -367,6 +368,7 @@ class APIHandler(BaseHTTPRequestHandler):
                     "quantity": quantity,
                     "meal": meal_slot,
                     "addedAt": now_ts,
+                    "uuid": str(uuid.uuid4()),
                     "food_server_id": food["id"],
                 }
 
@@ -377,6 +379,31 @@ class APIHandler(BaseHTTPRequestHandler):
 
                 if existing:
                     items = json.loads(existing["items"] or "[]")
+
+                    # Idempotency guard: MCP/network retries can replay the same
+                    # add request. Do not create an identical item in the same
+                    # meal within the replay window.
+                    now_dt = datetime.fromisoformat(now_ts)
+                    for prior in items:
+                        if (prior.get("food_server_id") == food["id"]
+                                and prior.get("meal") == meal_slot
+                                and abs(float(prior.get("quantity", 1)) - quantity) < 1e-9):
+                            added_at = prior.get("addedAt")
+                            if added_at:
+                                try:
+                                    prior_dt = datetime.fromisoformat(str(added_at).replace("Z", "").split("+")[0])
+                                    if abs((now_dt - prior_dt).total_seconds()) <= 60:
+                                        db.close()
+                                        return json_response(self, {
+                                            "ok": True,
+                                            "date": date_str,
+                                            "added": {"name": food["name"], "quantity": quantity, "meal": meal_name},
+                                            "total_items": len(items),
+                                            "deduplicated": True,
+                                        })
+                                except (TypeError, ValueError):
+                                    pass
+
                     items.append(new_item)
                     db.execute(
                         "UPDATE diary SET items=?, updated_at=? WHERE id=?",
