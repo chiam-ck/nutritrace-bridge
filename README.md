@@ -121,3 +121,10 @@ python3 scripts/create-nutritrace-n8n.py
 ## License
 
 MIT
+
+
+## Timestamp repair and GUI overlay
+
+The canonical local GUI repair lives in [overlays/nutritrace](overlays/nutritrace/README.md), including the pinned image build recipe, timestamp merge source, and upstream attribution. It compares legacy Singapore and timezone-aware item timestamps as instants so a fresh GUI portion edit survives the merge. The root bridge now stamps UTC item timestamps on add/PATCH, and the Diary Update workflow uses one evaluated JSON body expression.
+
+Run `make test-timestamps` for isolated merge and bridge regressions. For the installed n8n evaluator, run `python3 tests/emit-n8n-expression-test.py | docker exec -i homelab-n8n node`; this uses synthetic payloads and executes no workflow. Deployment configuration and real diary records are not part of these tests.

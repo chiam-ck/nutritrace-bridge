@@ -142,10 +142,7 @@ create("NutriTrace Food - MCP", "nutritrace-food", ["search", "get", "categories
 create("NutriTrace Diary - MCP", "nutritrace-diary", ["get", "add", "update", "delete", "range"], [
     http_node("Get", "GET", f"={NT}/diary/{{{{$json.body.date}}}}"),
     http_node("Add", "POST", f"{NT}/diary/add", body="={{ JSON.stringify({ date: $json.body.date, quantity: $json.body.quantity || 1, meal: $json.body.meal || 'lunch', ...($json.body.food_name ? { food_name: $json.body.food_name } : {}), ...($json.body.food_id ? { food_id: $json.body.food_id } : {}) }) }}"),
-    http_node("Update", "PATCH", f"={NT}/diary/{{{{$json.body.date}}}}", body={
-        "food_server_id": "={{$json.body.food_server_id}}",
-        "quantity": "={{$json.body.quantity}}",
-        "meal": "={{$json.body.meal}}"}),
+    http_node("Update", "PATCH", f"={NT}/diary/{{{{$json.body.date}}}}", body="={{ JSON.stringify({ food_server_id: Number($json.body.food_server_id), ...($json.body.quantity != null ? { quantity: Number($json.body.quantity) } : {}), ...($json.body.meal != null ? { meal: $json.body.meal } : {}) }) }}"),
     http_node("Delete", "DELETE", f"={NT}/diary/{{{{$json.body.date}}}}", body={
         "food_server_id": "={{$json.body.food_server_id}}",
         "meal": "={{$json.body.meal}}"}),

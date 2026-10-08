@@ -41,3 +41,9 @@ test:
 # Clean generated files
 clean:
 	rm -rf __pycache__ */__pycache__
+
+# Isolated timestamp and payload regressions (no live records)
+.PHONY: test-timestamps
+test-timestamps:
+	node --test tests/diary-merge.test.mjs
+	python3 tests/test_nutritrace_timestamps.py

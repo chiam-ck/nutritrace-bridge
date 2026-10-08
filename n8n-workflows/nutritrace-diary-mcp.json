@@ -190,7 +190,7 @@
         "options": {},
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\"food_server_id\": \"={{$json.body.food_server_id}}\", \"quantity\": \"={{$json.body.quantity}}\", \"meal\": \"={{$json.body.meal}}\"}"
+        "jsonBody": "={{ JSON.stringify({ food_server_id: Number($json.body.food_server_id), ...($json.body.quantity != null ? { quantity: Number($json.body.quantity) } : {}), ...($json.body.meal != null ? { meal: $json.body.meal } : {}) }) }}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,

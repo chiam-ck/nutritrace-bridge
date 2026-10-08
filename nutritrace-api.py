@@ -27,10 +27,23 @@ import os
 import sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 
 DB_PATH = os.environ.get("NT_DB_PATH", "/data/db/nutritrace.db")
 PORT = int(os.environ.get("NT_API_PORT", 3002))
+
+
+def _utc_timestamp():
+    """Item conflict timestamps use UTC, matching the browser's ISO strings."""
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+def _item_datetime(value):
+    """Read aware item timestamps and this bridge's legacy naive SGT values."""
+    parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone(timedelta(hours=8)))
+    return parsed.astimezone(timezone.utc)
 
 
 def get_db():
@@ -351,7 +364,7 @@ class APIHandler(BaseHTTPRequestHandler):
 
                 MEAL_MAP = {"breakfast": 0, "lunch": 1, "dinner": 2, "snacks": 3, "snack": 3}
                 meal_slot = MEAL_MAP.get(meal_name, 1)
-                now_ts = datetime.now().isoformat()
+                now_ts = _utc_timestamp()
 
                 new_item = {
                     "id": food["id"],
@@ -383,7 +396,7 @@ class APIHandler(BaseHTTPRequestHandler):
                     # Idempotency guard: MCP/network retries can replay the same
                     # add request. Do not create an identical item in the same
                     # meal within the replay window.
-                    now_dt = datetime.fromisoformat(now_ts)
+                    now_dt = _item_datetime(now_ts)
                     for prior in items:
                         if (prior.get("food_server_id") == food["id"]
                                 and prior.get("meal") == meal_slot
@@ -391,7 +404,7 @@ class APIHandler(BaseHTTPRequestHandler):
                             added_at = prior.get("addedAt")
                             if added_at:
                                 try:
-                                    prior_dt = datetime.fromisoformat(str(added_at).replace("Z", "").split("+")[0])
+                                    prior_dt = _item_datetime(added_at)
                                     if abs((now_dt - prior_dt).total_seconds()) <= 60:
                                         db.close()
                                         return json_response(self, {
@@ -703,6 +716,7 @@ class APIHandler(BaseHTTPRequestHandler):
                 items = json.loads(row["items"] or "[]")
                 found = False
                 updated = None
+                item_updated_at = _utc_timestamp()
 
                 for it in items:
                     if it.get("food_server_id") == int(food_id):
@@ -712,6 +726,7 @@ class APIHandler(BaseHTTPRequestHandler):
                             it["quantity"] = float(quantity)
                         if meal is not None:
                             it["meal"] = meal_i
+                        it["updatedAt"] = item_updated_at
                         found = True
                         updated = {
                             "name": it.get("name"),
