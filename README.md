@@ -132,4 +132,4 @@ Run `make test-timestamps` for isolated merge and bridge regressions. For the in
 
 ## Release notes
 
-See [CHANGELOG.md](CHANGELOG.md) for current untagged repairs and [GitHub Releases](https://github.com/chiam-ck/nutritrace-bridge/releases) for published tagged versions.
+See [CHANGELOG.md](CHANGELOG.md) for release notes and future untagged changes, and [GitHub Releases](https://github.com/chiam-ck/nutritrace-bridge/releases) for published tagged versions.
